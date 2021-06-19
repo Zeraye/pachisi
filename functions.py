@@ -1,69 +1,67 @@
-from pawn import Pawn
-from variables import pawns, turn, win
-from time import sleep
-from constants import debug_mode
-from random import randint
+import pawn_class
+import variables
+import time
+import constants
+import random
 
 def is_any_on_board(player):
-    for pawn in pawns:
-        if pawn.get_color() == player and pawn.get_pos_place() == 'board':
+    for pawn in variables.pawns:
+        if pawn.get_color() == player and pawn.get_loc() == 'board':
             return True
     return False
-
 
 def start_game():
     for color in ('red', 'green', 'blue', 'yellow'):
         for i in range(4):
-            pawns.append(Pawn(color, i, 'base'))
-    turn.extend([1, 0, 0, 0])
-    win.extend([0, 0, 0, 0])
-    if debug_mode == 1:
+            variables.pawns.append(pawn_class.Pawn(color, i, 'base'))
+    if constants.debug_mode == 1:
         print('[DEBUG_MODE] >> Game starting')
 
 def play_turn():
-    if turn[0] == 1:
-        player = 'red'
-    elif turn[1] == 1:
+    if variables.turn['red'] == 1:
+        variables.turn['red'] = 0
         player = 'green'
-    elif turn[2] == 1:
+    elif variables.turn['green'] == 1:
+        variables.turn['green'] = 0
         player = 'blue'
-    elif turn[3] == 1:
+    elif variables.turn['blue'] == 1:
+        variables.turn['blue'] = 0
         player = 'yellow'
-    if debug_mode == 1:
+    elif variables.turn['yellow'] == 1:
+        variables.turn['yellow'] = 0
+        player = 'red'
+    variables.turn[player] = 1
+
+    if constants.debug_mode == 1:
         print(f"[DEBUG_MODE] >> {player}'s turn starting")
 
-    score = randint(1, 6)
-    if debug_mode == 1:
+    score = random.randint(5, 6)
+    if constants.debug_mode == 1:
         print(f'[DEBUG_MODE] >> Score: {score}')
 
     if is_any_on_board(player):
-        pass
+        for pawn in variables.pawns:
+            if pawn.get_color() == player and pawn.get_loc() != 'base':
+                if constants.debug_mode == 1:
+                    print(f'[DEBUG_MODE] >> Moving pawn')
+                pawn.move(score)
+                break
     else:
-        pass
+        if score == 6:
+            for pawn in variables.pawns:
+                if pawn.get_color() == player:
+                    if constants.debug_mode == 1:
+                        print(f'[DEBUG_MODE] >> Starting pawn')
+                    pawn.start()
+                    break
 
-    time.sleep(5)
+    time.sleep(1.5)
 
-def next_turn():
-    def _closest_not_winner(_index):
-        if _index == len(turn) - 1:
-            for i in range(len(turn)):
-                if turn[i] != 1:
-                    return i
-        else:
-            for i in range(_index + 1, len(turn)):
-                if turn[i] != 1:
-                    return i
-            for i in range(_index):
-                if turn[i] != 1:
-                    return i
-        return -1
-
-    for i in range(len(turn)):
-        if turn[i] == 1:
-            turn[i] = 0
-            if _closest_not_winner(i) != -1:
-                turn[_closest_not_winner(i)] = 1
-            else:
-                if debug_mode == 1:
-                    print('[DEBUG_MODE] >> Game has ended')
-            break
+def manage_move(pawn, loc, index):
+    for _pawn in variables.pawns:
+        if _pawn.get_index() == index and _pawn.get_loc() == loc:
+            if pawn.get_color() != _pawn.get_color():
+                _pawn.set_index(0)
+                _pawn.set_loc('base')
+    pawn.set_index(index)
+    pawn.set_loc(loc)

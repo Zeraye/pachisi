@@ -1,24 +1,22 @@
 import pygame
-from events import check_events
-from draw import draw
-from constants import WIDTH, HEIGHT, FPS
-from functions import start_game, play_turn, next_turn
-from variables import turn
+import events
+import draw
+import constants
+import functions
 
 pygame.init()
 
-WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
+WINDOW = pygame.display.set_mode((constants.WIDTH, constants.HEIGHT), pygame.RESIZABLE)
 pygame.display.set_caption("Pachisi")
 
 def main(screen):
     clock = pygame.time.Clock()
-    start_game()
+    functions.start_game()
     while True:
-        clock.tick(FPS)
-        check_events(pygame.event.get())
-        play_turn()
-        next_turn()
-        draw(screen)
+        clock.tick(constants.FPS)
+        events.check_events(pygame.event.get())
+        functions.play_turn()
+        draw.draw_main(screen)
 
 if __name__ == '__main__':
     main(WINDOW)
